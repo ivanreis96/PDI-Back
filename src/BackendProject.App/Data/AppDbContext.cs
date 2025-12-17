@@ -17,11 +17,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configurar chave composta para a tabela de junção ReceitaIngrediente
         modelBuilder.Entity<ReceitaIngrediente>()
             .HasKey(ri => new { ri.ReceitaId, ri.IngredienteId });
 
-        // Configurar relacionamento N:N
         modelBuilder.Entity<ReceitaIngrediente>()
             .HasOne(ri => ri.Receita)
             .WithMany(r => r.ReceitaIngredientes)
@@ -32,21 +30,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany(i => i.ReceitaIngredientes)
             .HasForeignKey(ri => ri.IngredienteId);
 
-        // Configurar relacionamento 1:N entre Usuario e Receita
         modelBuilder.Entity<Receita>()
             .HasOne(r => r.Usuario)
             .WithMany(u => u.Receitas)
             .HasForeignKey(r => r.UsuarioId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Configurar relacionamento 1:1 entre Receita e PublicacaoReceita
         modelBuilder.Entity<PublicacaoReceita>()
             .HasOne(p => p.Receita)
             .WithOne(r => r.Publicacao)
             .HasForeignKey<PublicacaoReceita>(p => p.ReceitaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Configurar relacionamento N:N para ReceitaDeliciosa (usuários que aprovaram)
         modelBuilder.Entity<ReceitaDeliciosa>()
             .HasKey(rd => new { rd.UsuarioId, rd.ReceitaId });
 
@@ -62,7 +57,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(rd => rd.ReceitaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Configurar relacionamento N:N para ReceitaAmada (usuários que favoritaram/amaram)
         modelBuilder.Entity<ReceitaAmada>()
             .HasKey(ra => new { ra.UsuarioId, ra.ReceitaId });
 
@@ -78,7 +72,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(ra => ra.ReceitaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Índices para performance
         modelBuilder.Entity<Usuario>()
             .HasIndex(u => u.Email)
             .IsUnique();
@@ -93,9 +86,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<PublicacaoReceita>()
             .HasIndex(p => p.DataPublicacao);
 
-        // Configurar precisão decimal para NotaMedia
         modelBuilder.Entity<PublicacaoReceita>()
             .Property(p => p.NotaMedia)
-            .HasPrecision(3, 2); // Ex: 4.75
+            .HasPrecision(3, 2);
     }
 }
